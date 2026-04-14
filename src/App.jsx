@@ -572,11 +572,11 @@ export default function App() {
       totalComentarios > 0
         ? ((comentariosPrefeitura / totalComentarios) * 100).toFixed(1)
         : "0.0";
-
-    const setaProblemas =
-      filtrados.length >= 3 ? "↑" : filtrados.length >= 1 ? "→" : "↓";
-
-    const setaPrefeitura =
+    let setaProblemas = "";
+if (filtrados.length > 0) {
+  setaProblemas = "\u2191";
+}
+const setaPrefeitura =
       Number(percentualPrefeitura) >= 30
         ? "↑"
         : Number(percentualPrefeitura) > 0

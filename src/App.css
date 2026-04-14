@@ -181,4 +181,19 @@
     right: 0;
     border-right-color: var(--border);
   }
+.logo-topo {
+  width: 140px;
+  height: auto;
+  display: block;
+  margin: 0 auto 16px auto;
+}
+
+.logo-topo-pequena {
+  width: 110px;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px auto;
+}
+
+
 }
