@@ -778,7 +778,7 @@ export default function App() {
   // Esta é a função principal de sincronização do feed com o backend.
   // Antes havia DUPLICIDADE desta função no seu código. (Isso quebrava os comentários).
   // ==========================================================================
-  async function carregarProblemas() {
+ async function carregarProblemas() {
   try {
     const response = await fetch(`${BACKEND_URL}/problemas`);
 
@@ -795,18 +795,19 @@ export default function App() {
 
     const problemasBase = data.map(formatarProblemaBackend);
 
-    // Agora não busca comentários de todos os problemas ao abrir o mural
-    // Isso deixa o carregamento muito mais leve no celular
-    const problemasSemComentarios = problemasBase.map((problema) => ({
-      ...problema,
-      comentarios: Array.isArray(problema.comentarios) ? problema.comentarios : [],
-      totalComentarios:
-        typeof problema.totalComentarios === "number"
-          ? problema.totalComentarios
-          : 0,
-    }));
+    const problemasComComentarios = await Promise.all(
+      problemasBase.map(async (problema) => {
+        const comentarios = await carregarComentariosDoProblema(problema.id);
 
-    setProblemas(problemasSemComentarios);
+        return {
+          ...problema,
+          comentarios,
+          totalComentarios: comentarios.length,
+        };
+      })
+    );
+
+    setProblemas(problemasComComentarios);
   } catch (error) {
     console.error(error);
     mostrarMensagem("Não foi possível carregar os relatos da cidade.", "erro");
