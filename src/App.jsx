@@ -554,6 +554,8 @@ mensagemDoacao: {
   };
 }
 
+// "Corrige função ordenarComentarios"
+
 export default function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const styles = criarStyles(isMobile);
@@ -561,6 +563,22 @@ export default function App() {
   function emailValido(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+  function ordenarComentarios(lista) {
+    if (!Array.isArray(lista)) return [];
+
+    return [...lista].sort((a, b) => {
+      if (a.usuarioTipo === "PREFEITURA" && b.usuarioTipo !== "PREFEITURA") return -1;
+      if (a.usuarioTipo !== "PREFEITURA" && b.usuarioTipo === "PREFEITURA") return 1;
+
+      const dataA = a.dataIso || "";
+      const dataB = b.dataIso || "";
+
+      return dataB.localeCompare(dataA);
+    });
+  }
+
+
 
 
 
