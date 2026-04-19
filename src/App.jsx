@@ -8,7 +8,7 @@ import "./App.css";
 // Em ambiente local, o React conversa com o Spring Boot nesta URL.
 // Depois, no deploy, trocar para a URL pública do backend.
 // ============================================================================
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "https://mmm-backend-zytm.onrender.com";
 
 // ============================================================================
 // CORES DO SISTEMA
