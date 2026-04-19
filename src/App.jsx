@@ -6,7 +6,7 @@ import "./App.css";
 // URL DO BACKEND
 // ----------------------------------------------------------------------------
 // Em ambiente local, o React conversa com o Spring Boot nesta URL.
-// Depois, no deploy, você vai trocar para a URL pública do backend.
+// Depois, no deploy, trocar para a URL pública do backend.
 // ============================================================================
 const BACKEND_URL = "http://localhost:8080";
 
@@ -43,9 +43,8 @@ const cores = {
 // ============================================================================
 // ESTILOS
 // ----------------------------------------------------------------------------
-// Mantive sua linha visual, mas sem exagerar na parte estética.
-// O foco aqui é funcionamento + organização.
-// ============================================================================
+
+
 function criarStyles(isMobile) {
   return {
     pageCentralizada: {
@@ -759,7 +758,7 @@ export default function App() {
   // CARREGA TODOS OS PROBLEMAS E, EM SEGUIDA, RECARREGA OS COMENTÁRIOS
   // ----------------------------------------------------------------------------
   // Esta é a função principal de sincronização do feed com o backend.
-  // Antes havia DUPLICIDADE desta função no seu código. Isso quebrava os comentários.
+  // Antes havia DUPLICIDADE desta função no seu código. (Isso quebrava os comentários).
   // ==========================================================================
   async function carregarProblemas() {
     try {
