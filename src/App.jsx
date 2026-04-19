@@ -1190,67 +1190,54 @@ export default function App() {
   // os problemas novamente para trazer comentários atualizados do backend.
   // ==========================================================================
   async function comentarProblema(problemaId) {
-    if (!usuarioLogado) {
-      mostrarMensagem("Faça login para comentar.", "erro");
-      return;
-    }
-
-    const texto = (comentariosInput[problemaId] || "").trim();
-
-    if (!texto) {
-      mostrarMensagem("Digite um comentário antes de enviar.", "erro");
-      return;
-    }
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/comentario`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          usuarioId: usuarioLogado.id,
-          problemaId: problemaId,
-          texto: texto,
-        }),
-      });
-
-      if (!response.ok) {
-        const erro = await response.text();
-        throw new Error(erro || "Erro ao comentar");
-      }
-
-      // Limpa o campo de comentário apenas daquele problema
-      setComentariosInput((prev) => ({
-        ...prev,
-        [problemaId]: "",
-      }));
-
-      // Recarrega do backend para sincronizar os comentários
-      await carregarProblemas();
-
-      mostrarMensagem("Comentário enviado com sucesso!", "sucesso");
-    } catch (error) {
-      console.error(error);
-      mostrarMensagem(error.message || "Erro ao comentar.", "erro");
-    }
+  if (!usuarioLogado) {
+    mostrarMensagem("Faça login para comentar.", "erro");
+    return;
   }
 
-  // ==========================================================================
-  // ORDENA COMENTÁRIOS
-  // ----------------------------------------------------------------------------
-  // Comentários oficiais vêm primeiro.
-  // ==========================================================================
-  function ordenarComentarios(comentarios) {
-    return [...comentarios].sort((a, b) => {
-      const aOficial = a.usuarioTipo === "PREFEITURA";
-      const bOficial = b.usuarioTipo === "PREFEITURA";
+  const texto = (comentariosInput[problemaId] || "").trim();
 
-      if (aOficial && !bOficial) return -1;
-      if (!aOficial && bOficial) return 1;
-      return 0;
+  if (!texto) {
+    mostrarMensagem("Digite um comentário antes de enviar.", "erro");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/comentario`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usuarioId: usuarioLogado.id,
+        problemaId: problemaId,
+        texto: texto,
+      }),
     });
+
+    if (!response.ok) {
+      const erro = await response.text();
+      throw new Error(erro || "Não foi possível enviar o comentário.");
+    }
+
+    // Limpa o campo de comentário apenas daquele problema
+    setComentariosInput((prev) => ({
+      ...prev,
+      [problemaId]: "",
+    }));
+
+    // Recarrega do backend para sincronizar os comentários
+    await carregarProblemas();
+
+    mostrarMensagem("Comentário enviado com sucesso!", "sucesso");
+  } catch (error) {
+    console.error(error);
+    mostrarMensagem(
+      error.message || "Não foi possível enviar o comentário.",
+      "erro"
+    );
   }
+}
 
   // ==========================================================================
   // FILTRO DO FEED
