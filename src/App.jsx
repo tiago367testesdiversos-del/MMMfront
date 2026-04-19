@@ -1821,7 +1821,7 @@ export default function App() {
                       {dashboard.percentualPrefeitura}% {dashboard.setaPrefeitura}
                     </p>
                     <p style={styles.textoSecundario}>
-                      Percentual de relatos com pelo menos um comentário oficial.
+                      Percentual de relatos com comentário oficial.
                     </p>
                   </div>
                 </>
