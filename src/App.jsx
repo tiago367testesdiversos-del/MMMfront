@@ -779,40 +779,39 @@ export default function App() {
   // Antes havia DUPLICIDADE desta função no seu código. (Isso quebrava os comentários).
   // ==========================================================================
   async function carregarProblemas() {
-    try {
-      const response = await fetch(`${BACKEND_URL}/problemas`);
+  try {
+    const response = await fetch(`${BACKEND_URL}/problemas`);
 
-      if (!response.ok) {
-        throw new Error("Erro ao buscar relatos");
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        setProblemas([]);
-        return;
-      }
-
-      const problemasBase = data.map(formatarProblemaBackend);
-
-      const problemasComComentarios = await Promise.all(
-        problemasBase.map(async (problema) => {
-          const comentarios = await carregarComentariosDoProblema(problema.id);
-
-          return {
-            ...problema,
-            comentarios,
-            totalComentarios: comentarios.length,
-          };
-        })
-      );
-
-      setProblemas(problemasComComentarios);
-    } catch (error) {
-      console.error(error);
-      mostrarMensagem("Não foi possível carregar os relatos da cidade.", "erro");
+    if (!response.ok) {
+      throw new Error("Erro ao buscar relatos");
     }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      setProblemas([]);
+      return;
+    }
+
+    const problemasBase = data.map(formatarProblemaBackend);
+
+    // Agora não busca comentários de todos os problemas ao abrir o mural
+    // Isso deixa o carregamento muito mais leve no celular
+    const problemasSemComentarios = problemasBase.map((problema) => ({
+      ...problema,
+      comentarios: Array.isArray(problema.comentarios) ? problema.comentarios : [],
+      totalComentarios:
+        typeof problema.totalComentarios === "number"
+          ? problema.totalComentarios
+          : 0,
+    }));
+
+    setProblemas(problemasSemComentarios);
+  } catch (error) {
+    console.error(error);
+    mostrarMensagem("Não foi possível carregar os relatos da cidade.", "erro");
   }
+}
 
   // ==========================================================================
   // CARREGA USUÁRIOS DO BACKEND
