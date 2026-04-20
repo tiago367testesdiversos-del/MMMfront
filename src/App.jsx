@@ -58,6 +58,16 @@ function criarStyles(isMobile) {
       overflowY: "auto",
     },
 
+spinner: {
+      width: "14px",
+      height: "14px",
+      border: "2px solid #d9d9d9",
+      borderTop: "2px solid #2f6fed",
+      borderRadius: "50%",
+      display: "inline-block",
+      animation: "girar 0.8s linear infinite",
+    },
+
     cardPequeno: {
       width: "100%",
       maxWidth: isMobile ? "100%" : "650px",
@@ -860,14 +870,16 @@ export default function App() {
     setQuantidadeVisivelFeed(10);
   }, [cidadeFeed, ufFeed, bairroFeed]);
 
-  // ==========================================================================
+  
   // CADASTRO DE USUÁRIO
   // ----------------------------------------------------------------------------
   // Envia o cadastro para o backend Spring Boot.
   // Depois recarrega a lista de usuários para manter o front sincronizado.
-  // ==========================================================================
+  
   async function cadastrarUsuario(e) {
   e.preventDefault();
+
+  if (carregando) return; // impede clique duplo
 
   const nomeCadastro = formCadastro.nome.trim();
   const emailCadastro = formCadastro.email.trim().toLowerCase();
@@ -886,6 +898,8 @@ export default function App() {
   try {
     setCarregando(true);
 
+    mostrarMensagem("Processando cadastro... aguarde.", "info");
+
     const response = await fetch(`${BACKEND_URL}/usuarios`, {
       method: "POST",
       headers: {
@@ -895,6 +909,7 @@ export default function App() {
         nome: nomeCadastro,
         email: emailCadastro,
         senha: senhaCadastro,
+        cidade: formCadastro.cidade?.trim() || ""
       }),
     });
 
@@ -914,6 +929,7 @@ export default function App() {
       nome: "",
       email: "",
       senha: "",
+      cidade: "",
     });
 
     mostrarMensagem("Cadastro realizado com sucesso!", "sucesso");
@@ -1430,7 +1446,7 @@ export default function App() {
         <div style={styles.telaAnimada}>
           <div style={styles.topoSocial}>
             <img src={logo} alt="Logo do Meu Mundo Melhor" style={styles.logo} />
-            <h2 style={styles.subtitulo}>Entrar</h2>
+            
             <p style={styles.descricao}>
               Acesse a conta para acompanhar o mural da cidade e participar das discussões de sua comunidade.
             </p>
@@ -1492,70 +1508,98 @@ export default function App() {
   );
 }
   // ==========================================================================
-  // CADASTRO
-  // ==========================================================================
-  if (telaAtual === "cadastro") {
-    return (
-      <div style={styles.pageCentralizada}>
-        <div style={styles.cardPequeno}>
-          <div style={styles.telaAnimada}>
-            <div style={styles.topoSocial}>
-              <img src={logo} alt="Logo do Meu Mundo Melhor" style={styles.logo} />
-              <h2 style={styles.subtitulo}>Criar conta</h2>
-            </div>
-
-            <AcoesTela />
-
-            <form onSubmit={cadastrarUsuario} style={styles.form}>
-              <label style={styles.label}>
-                Nome
-                <input
-                  style={styles.input}
-                  placeholder="Digite seu nome"
-                  value={formCadastro.nome}
-                  onChange={(e) =>
-                    setFormCadastro({ ...formCadastro, nome: e.target.value })
-                  }
-                />
-              </label>
-
-              <label style={styles.label}>
-                Email
-                <input
-                  style={styles.input}
-                  placeholder="Digite seu email"
-                  value={formCadastro.email}
-                  onChange={(e) =>
-                    setFormCadastro({ ...formCadastro, email: e.target.value })
-                  }
-                />
-              </label>
-
-              <label style={styles.label}>
-                Senha
-                <input
-                  style={styles.input}
-                  type="password"
-                  placeholder="Crie uma senha"
-                  value={formCadastro.senha}
-                  onChange={(e) =>
-                    setFormCadastro({ ...formCadastro, senha: e.target.value })
-                  }
-                />
-              </label>
-
-              <button type="submit" style={styles.botaoPrimario} disabled={carregando}>
-                {carregando ? "Cadastrando..." : "Cadastrar"}
-              </button>
-            </form>
-
-            {renderMensagem()}
+  //// ==========================================================================
+// CADASTRO
+// ==========================================================================
+if (telaAtual === "cadastro") {
+  return (
+    <div style={styles.pageCentralizada}>
+      <div style={styles.cardPequeno}>
+        <div style={styles.telaAnimada}>
+          <div style={styles.topoSocial}>
+            <img src={logo} alt="Logo do Meu Mundo Melhor" style={styles.logo} />
+            <h2 style={styles.subtitulo}>Criar conta</h2>
           </div>
+
+          <AcoesTela />
+
+          {/* onSubmit chama a função cadastrarUsuario */}
+          <form onSubmit={cadastrarUsuario} style={styles.form}>
+            <label style={styles.label}>
+              Nome
+              <input
+                style={styles.input}
+                placeholder="Digite seu nome"
+                value={formCadastro.nome}
+                onChange={(e) =>
+                  setFormCadastro({ ...formCadastro, nome: e.target.value })
+                }
+              />
+            </label>
+
+            <label style={styles.label}>
+              Email
+              <input
+                // type="email" ajuda o navegador a reconhecer melhor o campo
+                type="email"
+                style={styles.input}
+                placeholder="Digite seu email"
+                value={formCadastro.email}
+                onChange={(e) =>
+                  setFormCadastro({ ...formCadastro, email: e.target.value })
+                }
+              />
+            </label>
+
+            <label style={styles.label}>
+              Senha
+              <input
+                style={styles.input}
+                type="password"
+                placeholder="Crie uma senha"
+                value={formCadastro.senha}
+                onChange={(e) =>
+                  setFormCadastro({ ...formCadastro, senha: e.target.value })
+                }
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={carregando} // trava o botão enquanto envia
+              style={{
+                ...styles.botaoPrimario,
+
+                // deixa visualmente claro que o botão está desabilitado
+                opacity: carregando ? 0.7 : 1,
+                cursor: carregando ? "not-allowed" : "pointer",
+
+                // ajuda a centralizar texto e spinner no botão
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              {carregando ? (
+                <>
+                  {/* spinner visual para mostrar que o sistema está processando */}
+                  <span style={styles.spinner}></span>
+                  Cadastrando...
+                </>
+              ) : (
+                "Cadastrar"
+              )}
+            </button>
+          </form>
+
+          {/* mostra mensagens de erro, sucesso ou info */}
+          {renderMensagem()}
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
+}
   // ==========================================================================
   // MENU
   // ==========================================================================
